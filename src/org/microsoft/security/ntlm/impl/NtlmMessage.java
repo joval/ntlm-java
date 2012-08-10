@@ -74,10 +74,15 @@ public class NtlmMessage {
             } else {
                 ByteArray structureDataItem = (ByteArray) dataItem;
                 if (structureDataItem != null) {
-                    intTo2Bytes(structureDataItem.getLength(), data, plainOffset);
-                    intTo2Bytes(structureDataItem.getLength(), data, plainOffset+2);
-                    intTo4Bytes(payloadOffset, data, plainOffset+4);
-                    payloadOffset += structureDataItem.copyTo(data, payloadOffset);
+                    int dataLen = structureDataItem.getLength();
+                    intTo2Bytes(dataLen, data, plainOffset);
+                    intTo2Bytes(dataLen, data, plainOffset+2);
+		    if (dataLen == 0) {
+                	intTo4Bytes(0, data, plainOffset+4);
+		    } else {
+                	intTo4Bytes(payloadOffset, data, plainOffset+4);
+                	payloadOffset += structureDataItem.copyTo(data, payloadOffset);
+		    }
                 }
                 plainOffset += 8;
             }

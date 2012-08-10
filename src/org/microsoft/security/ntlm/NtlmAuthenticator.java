@@ -248,7 +248,7 @@ public class NtlmAuthenticator {
 	    return new NtlmV1Session(connectionType, flags, ntowf, lmowf, DEFAULT_WINDOWS_VERSION, hostname, domain, username);
 
 	  case ntlmv2:
-	    return new NtlmV2Session(connectionType, 0xE2088215, ntowf, DEFAULT_WINDOWS_VERSION, hostname, domain, username);
+	    return new NtlmV2Session(connectionType, flags, ntowf, DEFAULT_WINDOWS_VERSION, hostname, domain, username);
 
 	  default:
 	    throw new RuntimeException("Internal error. Unsupported NTLM version");

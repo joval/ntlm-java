@@ -202,7 +202,7 @@ public class Algorithms {
 
     public static byte[] concat(Object... args) {
         int length = 0;
-        for (int i = 0; i < args.length; i++) {
+        for (int i=0; i < args.length; i++) {
             Object arg = args[i];
             if (arg instanceof ByteArray) {
                 ByteArray byteArray = (ByteArray)arg;
@@ -210,7 +210,7 @@ public class Algorithms {
             } else if (arg instanceof byte[]) {
                 byte[] bytes = (byte[]) arg;
                 length += bytes.length;
-            } else {
+            } else if (arg != null) {
                 throw new RuntimeException("Unknown type. Only ByteArray or byte[] are supported[" + i + "]: " + arg);
             }
         }

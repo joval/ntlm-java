@@ -348,7 +348,6 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         clientSealingKey = sealkey(negotiateFlags, SignkeyMode.client, exportedSessionKey, randomForSealKey);
         serverSealingKey = sealkey(negotiateFlags, SignkeyMode.server, exportedSessionKey, randomForSealKey);
 
-
         if (connectionType == NtlmAuthenticator.ConnectionType.connectionOriented) {
             clientSealingKeyCipher = createRC4(clientSealingKey);
             serverSealingKeyCipher = createRC4(serverSealingKey);
