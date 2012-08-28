@@ -531,8 +531,7 @@ public class NtlmRoutines {
      */
     public static byte[] signkey(int negotiateFlags, SignkeyMode mode, byte[] randomSessionKey) {
         if (NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.isSet(negotiateFlags)) {
-            byte[] signKey = calculateMD5(concat(randomSessionKey, mode.signingMagicString));
-            return signKey;
+            return calculateMD5(concat(randomSessionKey, mode.signingMagicString));
         } else {
             return null;
         }

@@ -15,5 +15,6 @@ public interface NtlmSession {
     void updateSequenceNumber(int seqNum);
     byte[] sign(byte[] message);
     byte[] seal(byte[] message);
+    byte[] unseal(byte[] message);
     byte[] calculateMac(byte[] message);
 }

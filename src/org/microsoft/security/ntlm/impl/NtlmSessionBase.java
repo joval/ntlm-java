@@ -349,8 +349,8 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         serverSealingKey = sealkey(negotiateFlags, SignkeyMode.server, exportedSessionKey, randomForSealKey);
 
         if (connectionType == NtlmAuthenticator.ConnectionType.connectionOriented) {
-            clientSealingKeyCipher = createRC4(clientSealingKey);
-            serverSealingKeyCipher = createRC4(serverSealingKey);
+            clientSealingKeyCipher = createRC4(clientSealingKey, Cipher.ENCRYPT_MODE);
+            serverSealingKeyCipher = createRC4(serverSealingKey, Cipher.DECRYPT_MODE);
         }
     }
 
@@ -417,7 +417,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
      * 
      */
     public byte[] sign(byte[] message) {
-        return null;
+	return concat(message, calculateMac(message));
     }
 
     /**
@@ -442,8 +442,8 @@ public abstract class NtlmSessionBase  implements NtlmSession {
      * --  MAC() - Defined in Section 3.4.4.1 and 3.4.4.2.
      * 
      * Define SEAL(Handle, SigningKey, SeqNum, Message) as
-         * Set Sealed message to RC4(Handle, Message)
-         * Set Signature to MAC(Handle, SigningKey, SeqNum, Message)
+     *     Set Sealed message to RC4(Handle, Message)
+     *     Set Signature to MAC(Handle, SigningKey, SeqNum, Message)
      * EndDefine
      * 
      * Message confidentiality is available in connectionless mode only if the client configures extended
@@ -453,6 +453,17 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     public byte[] seal(byte[] message) {
         try {
             return clientSealingKeyCipher.doFinal(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
+
+    /**
+     * Unseal a message that was sealed by the server.
+     */
+    public byte[] unseal(byte[] message) {
+        try {
+            return serverSealingKeyCipher.doFinal(message);
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
         }

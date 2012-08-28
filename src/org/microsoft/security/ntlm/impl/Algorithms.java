@@ -255,9 +255,13 @@ public class Algorithms {
     }
 
     public static Cipher createRC4(byte[] key) {
+	return createRC4(key, Cipher.ENCRYPT_MODE);
+    }
+
+    public static Cipher createRC4(byte[] key, int opmode) {
         try {
             Cipher rc4 = Cipher.getInstance(RC4_NAME);
-            rc4.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, RC4_NAME));
+            rc4.init(opmode, new SecretKeySpec(key, RC4_NAME));
             return rc4;
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
@@ -309,13 +313,13 @@ public class Algorithms {
 
     /**
      * 6 Appendix A: Cryptographic Operations Reference
-RC4K(K,D)
-Indicates the encryption of data item D with the key K
-using the RC4 algorithm.
-Note The key sizes for RC4 encryption in NTLM are
-defined in sections KXKEY, SIGNKEY, and SEALKEY, where
-they are created.
-
+     * RC4K(K,D)
+     * Indicates the encryption of data item D with the key K
+     * using the RC4 algorithm.
+     * Note The key sizes for RC4 encryption in NTLM are
+     * defined in sections KXKEY, SIGNKEY, and SEALKEY, where
+     * they are created.
+     * 
      * @param key
      * @param data
      * @return
@@ -323,7 +327,6 @@ they are created.
     public static byte[] calculateRC4K(byte[] key, byte[] data) {
         try {
             Cipher rc4 = createRC4(key);
-//            rc4.update(data);
             return rc4.doFinal(data);
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
@@ -340,9 +343,9 @@ they are created.
      * 6 Appendix A: Cryptographic Operations Reference
      *
      * DES(K, D) Indicates the encryption of an 8-byte data item D with the
-          7-byte key K using the Data Encryption Standard (DES)
-          algorithm in Electronic Codebook (ECB) mode. The result is
-          8 bytes in length ([FIPS46-2]).
+     *    7-byte key K using the Data Encryption Standard (DES)
+     *    algorithm in Electronic Codebook (ECB) mode. The result is
+     *    8 bytes in length ([FIPS46-2]).
      *
      *
      *
@@ -395,14 +398,14 @@ they are created.
      * 6 Appendix A: Cryptographic Operations Reference
      *
      * DESL(K, D) Indicates the encryption of an 8-byte data item D with the 3.3.1
-           16-byte key K using the Data Encryption Standard Long
-           (DESL) algorithm. The result is 24 bytes in length. DESL(K,
-           D) is computed as follows.
-ConcatenationOf( DES(K[0..6], D), \
-DES(K[7..13], D), DES( \
-ConcatenationOf(K[14..15], Z(5)), D));
-Note K[] implies a key represented as a character array.
-
+     *     16-byte key K using the Data Encryption Standard Long
+     *     (DESL) algorithm. The result is 24 bytes in length. DESL(K,
+     *     D) is computed as follows.
+     * ConcatenationOf( DES(K[0..6], D), \
+     * DES(K[7..13], D), DES( \
+     * ConcatenationOf(K[14..15], Z(5)), D));
+     * Note K[] implies a key represented as a character array.
+     * 
      * @param keyData key
      * @param data data
      * @return DESL result

@@ -16,6 +16,7 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_ID
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_NTLM_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_SIGN_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_SEAL_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_UNICODE_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_VERSION_FLAG;
@@ -217,7 +218,7 @@ public class NtlmAuthenticator {
     private byte[] lmowf;
 
     public NtlmAuthenticator(NtlmVersion ntlmVersion, ConnectionType connectionType,
-		String hostname, String domain, String username, String password) {
+		String hostname, String domain, String username, String password, boolean seal) {
 
 	this.ntlmVersion = ntlmVersion;
 	this.connectionType = connectionType;
@@ -239,6 +240,10 @@ public class NtlmAuthenticator {
 	  default:
 	    flags = NEGOTIATE_FLAGS_CONN;
 	    break;
+	}
+
+	if (seal) {
+	    flags |= NTLMSSP_NEGOTIATE_SEAL_FLAG;
 	}
     }
 
