@@ -3,10 +3,12 @@
  */
 package org.microsoft.security.ntlm.impl;
 
+import java.nio.charset.Charset;
+import java.nio.CharBuffer;
+import javax.crypto.Cipher;
+
 import org.microsoft.security.ntlm.NtlmAuthenticator;
 import org.microsoft.security.ntlm.NtlmSession;
-
-import javax.crypto.Cipher;
 
 import static org.microsoft.security.ntlm.NtlmAuthenticator.ConnectionType;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.NEGOTIATE_FLAGS_CONN;
@@ -14,6 +16,8 @@ import static org.microsoft.security.ntlm.NtlmAuthenticator.NEGOTIATE_FLAGS_CONN
 import static org.microsoft.security.ntlm.NtlmAuthenticator.WindowsVersion;
 import static org.microsoft.security.ntlm.impl.Algorithms.ByteArray;
 import static org.microsoft.security.ntlm.impl.Algorithms.EMPTY_ARRAY;
+import static org.microsoft.security.ntlm.impl.Algorithms.ASCII_ENCODING;
+import static org.microsoft.security.ntlm.impl.Algorithms.UNICODE_ENCODING;
 import static org.microsoft.security.ntlm.impl.Algorithms.calculateHmacMD5;
 import static org.microsoft.security.ntlm.impl.Algorithms.calculateRC4K;
 import static org.microsoft.security.ntlm.impl.Algorithms.concat;
@@ -39,9 +43,11 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_12
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_56_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_TARGET_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_TARGET_INFO;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_VERSION_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.MsvAvNbDomainName;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.MsvAvNbComputerName;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.SignkeyMode;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.mac;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.reinitSealingKey;
@@ -56,12 +62,17 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.signkey;
 public abstract class NtlmSessionBase  implements NtlmSession {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-    private ConnectionType connectionType;
+    static byte[] toBytes(char[] chars, Charset encoding) {
+        return encoding.encode(CharBuffer.wrap(chars)).array();
+    }
 
+    private ConnectionType connectionType;
     private WindowsVersion windowsVersion;
-    private String hostname;
-    private String domain;
-    private String username;
+
+    protected String hostname;
+    protected String domain;
+    protected String username;
+    protected char[] password;
 
     private byte[] exportedSessionKey;
     private byte[] encryptedRandomSessionKey;
@@ -83,13 +94,14 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     ByteArray serverChallenge;
 
     public NtlmSessionBase(ConnectionType connectionType, int negotiateFlags, WindowsVersion windowsVersion,
-		String hostname, String domain, String username) {
+		String hostname, String domain, String username, char[] password) {
 
         this.connectionType = connectionType;
         this.windowsVersion = windowsVersion;
         this.hostname = hostname;
         this.domain = domain;
         this.username = username;
+	this.password = password;
 	this.negotiateFlags = negotiateFlags;
     }
 
@@ -244,6 +256,10 @@ public abstract class NtlmSessionBase  implements NtlmSession {
 
             negotiateFlags = NTLMSSP_NEGOTIATE_LM_KEY.excludeFlag(negotiateFlags);
         }
+	if (NTLMSSP_NEGOTIATE_TARGET_INFO.isSet(negotiateFlags)) {
+	    domain = challengeMessage.getTargetInfoPairs()[MsvAvNbDomainName].asString(UNICODE_ENCODING);
+	    hostname = challengeMessage.getTargetInfoPairs()[MsvAvNbComputerName].asString(UNICODE_ENCODING);
+	}
 
         serverChallenge = challengeMessage.getServerChallenge();
         calculateNTLMResponse(time, clientChallenge, challengeMessage.getTargetInfo());
@@ -255,9 +271,9 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         authenticateMessage = new NtlmMessage(3);
         authenticateMessage.appendStructure(lmChallengeResponse);
         authenticateMessage.appendStructure(ntChallengeResponse);
-        authenticateMessage.appendStructure(domain);
+	authenticateMessage.appendStructure(domain);
         authenticateMessage.appendStructure(username);
-        authenticateMessage.appendStructure(hostname);
+	authenticateMessage.appendStructure(hostname);
         authenticateMessage.appendStructure(encryptedRandomSessionKey);
         authenticateMessage.appendPlain(intToBytes(negotiateFlags));
 
@@ -365,8 +381,13 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         if (connectionType == ConnectionType.connectionOriented) {
             NtlmMessage negotiateMessage = new NtlmMessage(1);
             negotiateMessage.appendPlain(intToBytes(negotiateFlags));
+/*
             negotiateMessage.appendStructure(domain);
             negotiateMessage.appendStructure(hostname);
+*/
+//DAS
+negotiateMessage.appendStructure("");
+negotiateMessage.appendStructure("");
             negotiateMessage.appendPlain(windowsVersion.data);
             negotiateMessageData = negotiateMessage.getData();
         } else {

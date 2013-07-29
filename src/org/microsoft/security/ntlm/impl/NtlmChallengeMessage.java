@@ -106,7 +106,7 @@ public class NtlmChallengeMessage {
 	}
     }
 
-static int[] ORDER = new int[] {2, 1, 4, 3, 7, 6, 8, 10, 9, 5};
+    static int[] ORDER = new int[] {2, 1, 4, 3, 7, 6, 8, 10, 9, 5};
     public byte[] getMessageData() {
 	try {
 	    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -124,25 +124,17 @@ static int[] ORDER = new int[] {2, 1, 4, 3, 7, 6, 8, 10, 9, 5};
 
 	    SecurityBuffer targetInfo = new SecurityBuffer(messageData, 40);
 	    ByteArrayOutputStream infoBuffer = new ByteArrayOutputStream();
-for (int i=0; i < ORDER.length; i++) {
-    int j = ORDER[i];
-    if (targetInfoPairs[j] != null) {
-        ByteArray data = targetInfoPairs[j];
-        infoBuffer.write(shortToBytes(j)); // MsvAv ID
-        infoBuffer.write(shortToBytes(data.getLength()));
-        infoBuffer.write(data.getData(), data.getOffset(), data.getLength());
-    }
-}
-/*
-	    for (int i=1; i < targetInfoPairs.length; i++) {
-		if (targetInfoPairs[i] != null) {
-		    ByteArray data = targetInfoPairs[i];
-		    infoBuffer.write(shortToBytes(i)); // MsvAv ID
+
+	    for (int i=0; i < ORDER.length; i++) {
+		int j = ORDER[i];
+		if (targetInfoPairs[j] != null) {
+		    ByteArray data = targetInfoPairs[j];
+		    infoBuffer.write(shortToBytes(j)); // MsvAv ID
 		    infoBuffer.write(shortToBytes(data.getLength()));
 		    infoBuffer.write(data.getData(), data.getOffset(), data.getLength());
 		}
 	    }
-*/
+
 	    infoBuffer.write(new byte[8]); //MsvAvEOL
 	    byte[] infoBytes = infoBuffer.toByteArray();
 	    buffer.write(shortToBytes(infoBytes.length));

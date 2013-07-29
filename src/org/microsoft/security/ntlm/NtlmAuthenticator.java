@@ -30,7 +30,8 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_TARG
  */
 public class NtlmAuthenticator {
 
-    private static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.Windows7;
+//  private static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.Windows7;
+    private static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.WindowsXp;
 
     /**
      * 3.1.1.1 Variables Internal to the Protocol
@@ -201,39 +202,16 @@ public class NtlmAuthenticator {
      * Windows 2000, Windows XP, Windows Server 2003, Windows Vista, and Windows Server 2008.
      * 
      */
-    private ConnectionType connectionType;
-    private NtlmVersion ntlmVersion;
+    public static NtlmSession createSession(NtlmVersion version, ConnectionType type, boolean seal,
+		String hostname, String domain, String username, char[] password) {
 
-    private String hostname;
-    private String domain;
-    private String username;
+	/**
+	 * ClientConfigFlags: The set of client configuration flags (section 2.2.2.5) that specify the full set of
+	 * capabilities of the client.
+	 */
+	int flags;
 
-    /**
-     * ClientConfigFlags: The set of client configuration flags (section 2.2.2.5) that specify the full set of
-     * capabilities of the client.
-     */
-    private int flags;
-
-    private byte[] ntowf;
-    private byte[] lmowf;
-
-    public NtlmAuthenticator(NtlmVersion ntlmVersion, ConnectionType connectionType,
-		String hostname, String domain, String username, String password, boolean seal) {
-
-	this.ntlmVersion = ntlmVersion;
-	this.connectionType = connectionType;
-	this.hostname = hostname;
-	this.domain = domain;
-	this.username = username;
-
-	if (ntlmVersion == NtlmVersion.ntlmv2) {
-	    ntowf = NtlmV2Session.calculateNTOWFv2(domain, username, password);
-	} else {
-	    ntowf = NtlmV1Session.calculateNTOWFv1(domain, username, password);
-	    lmowf = NtlmV1Session.calculateLMOWFv1(domain, username, password);
-	}
-
-	switch (connectionType) {
+	switch(type) {
 	  case connectionless:
 	    flags = NEGOTIATE_FLAGS_CONNLESS;
 	    break;
@@ -245,15 +223,13 @@ public class NtlmAuthenticator {
 	if (seal) {
 	    flags |= NTLMSSP_NEGOTIATE_SEAL_FLAG;
 	}
-    }
 
-    public NtlmSession createSession() {
-	switch (ntlmVersion) {
+	switch (version) {
 	  case ntlmv1:
-	    return new NtlmV1Session(connectionType, flags, ntowf, lmowf, DEFAULT_WINDOWS_VERSION, hostname, domain, username);
+	    return new NtlmV1Session(type, flags, DEFAULT_WINDOWS_VERSION, hostname, domain, username, password);
 
 	  case ntlmv2:
-	    return new NtlmV2Session(connectionType, flags, ntowf, DEFAULT_WINDOWS_VERSION, hostname, domain, username);
+	    return new NtlmV2Session(type, flags, DEFAULT_WINDOWS_VERSION, hostname, domain, username, password);
 
 	  default:
 	    throw new RuntimeException("Internal error. Unsupported NTLM version");

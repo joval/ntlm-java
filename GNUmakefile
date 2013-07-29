@@ -3,7 +3,7 @@ Default: all
 TOP=../..
 
 ifndef JAVA_HOME
-    JAVA_HOME=$(TOP)/../tools/jdk160_26
+    JAVA_HOME=$(TOP)/../tools/jdk1.7.0_21
 endif
 
 ifeq (Windows, $(findstring Windows,$(OS)))
@@ -36,21 +36,21 @@ CLASS_FILES:=$(foreach class, $(CLASSES), $(BUILD)/$(subst .,/,$(class)).class)
 PACKAGES=$(sort $(basename $(CLASSES)))
 PACKAGEDIRS=$(subst .,/,$(PACKAGES))
 
-all: ntlm-core-1.0-r17.jar
+all: ntlm-core-1.0-r18.jar
 
-ntlm-core-1.0-r17.jar: classes
+ntlm-core-1.0-r18.jar: classes
 	$(JAR) cvf $@ -C $(BUILD)/ .
 
 javadocs:
 	mkdir -p $(DOCS)
 	$(JAVA_HOME)/bin/javadoc -d $(DOCS) -classpath $(CLASSPATH) $(PACKAGES)
 
-install: ntlm-core-1.0-r17.jar
-	cp $< $(TOP)/joval/components/sdk/plugin/remote/rsrc/lib
+install: ntlm-core-1.0-r18.jar
+	cp $< $(TOP)/jOVAL-Commercial/components/provider/rsrc/lib
 
 clean:
 	rm -rf $(BUILD)
-	rm ntlm-core-1.0-r17.jar
+	rm ntlm-core-1.0-r18.jar
 
 classes: classdirs $(CLASS_FILES)
 

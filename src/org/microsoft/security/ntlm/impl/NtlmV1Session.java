@@ -1,5 +1,7 @@
 package org.microsoft.security.ntlm.impl;
 
+import java.util.Arrays;
+
 import static org.microsoft.security.ntlm.NtlmAuthenticator.ConnectionType;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.WindowsVersion;
 import static org.microsoft.security.ntlm.impl.Algorithms.ASCII_ENCODING;
@@ -36,16 +38,11 @@ public class NtlmV1Session extends NtlmSessionBase {
      * In tests, 4.2.2.2.2 LMv1 Response this value is expected to be false
      */
     private static final boolean NO_LM_RESPONSE_NTLM_V1 = false;
-    private byte[] ntowfv1;
-    private byte[] lmowfv1;
 
+    public NtlmV1Session(ConnectionType connectionType, int negotiateFlags, WindowsVersion windowsVersion,
+		String hostname, String domain, String username, char[] password) {
 
-    public NtlmV1Session(ConnectionType connectionType, int negotiateFlags,  byte[] ntowfv1, byte[] lmowfv1,
-		WindowsVersion windowsVersion, String hostname, String domain, String username) {
-
-        super(connectionType, negotiateFlags, windowsVersion, hostname, domain, username);
-        this.ntowfv1 = ntowfv1;
-        this.lmowfv1 = lmowfv1;
+        super(connectionType, negotiateFlags, windowsVersion, hostname, domain, username, password);
     }
 
 
@@ -128,19 +125,22 @@ Set SessionBaseKey to MD4(NTOWF)
 
     @Override
     protected void calculateNTLMResponse(ByteArray time, byte[] clientChallengeArray, ByteArray targetInfo) {
+	byte[] ntowf = calculateNTOWFv1();
+	byte[] lmowf = calculateLMOWFv1();
+
         if (LM_AUTHENTICATION) {
 //        if (NtlmRoutines.NTLMSSP_NEGOTIATE_LM_KEY.isSet(negotiateFlags)) {
             ntChallengeResponse = null;
-            lmChallengeResponse = calculateDESL(lmowfv1, serverChallenge);
+            lmChallengeResponse = calculateDESL(lmowf, serverChallenge);
         } else if (NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.isSet(negotiateFlags)) {
-            ntChallengeResponse = calculateDESL(ntowfv1, new ByteArray(calculateMD5(concat(serverChallenge, clientChallengeArray)), 0, 8));
+            ntChallengeResponse = calculateDESL(ntowf, new ByteArray(calculateMD5(concat(serverChallenge, clientChallengeArray)), 0, 8));
             lmChallengeResponse = concat(clientChallengeArray, Z(16));
         } else {
-            ntChallengeResponse = calculateDESL(ntowfv1, serverChallenge);
-            lmChallengeResponse = NO_LM_RESPONSE_NTLM_V1 ? ntChallengeResponse : calculateDESL(lmowfv1, serverChallenge);
+            ntChallengeResponse = calculateDESL(ntowf, serverChallenge);
+            lmChallengeResponse = NO_LM_RESPONSE_NTLM_V1 ? ntChallengeResponse : calculateDESL(lmowf, serverChallenge);
         }
 
-        sessionBaseKey = calculateMD4(ntowfv1);
+        sessionBaseKey = calculateMD4(ntowf);
     }
 
 
@@ -154,6 +154,7 @@ Set SessionBaseKey to MD4(NTOWF)
     @Override
     protected byte[] kxkey() {
         byte[] kxkey;
+	byte[] lmowf = calculateLMOWFv1();
 
         if (NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.isSet(negotiateFlags)) {
             /*
@@ -220,12 +221,12 @@ EndDefine
      */
             if (NTLMSSP_NEGOTIATE_LM_KEY.isSet(negotiateFlags)) {
                 ByteArray lmChallengeResponse07 = new ByteArray(lmChallengeResponse, 0, 8);
-                kxkey = concat(calculateDES(new ByteArray(lmowfv1, 0, 7), lmChallengeResponse07)
-                        , calculateDES(new ByteArray(new byte[]{lmowfv1[7], (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, })
+                kxkey = concat(calculateDES(new ByteArray(lmowf, 0, 7), lmChallengeResponse07)
+                        , calculateDES(new ByteArray(new byte[]{lmowf[7], (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, (byte) 0xbd, })
                                 , lmChallengeResponse07)
                         );
             } else if (NTLMSSP_REQUEST_NON_NT_SESSION_KEY.isSet(negotiateFlags)) {
-                kxkey = concat(new ByteArray(lmowfv1, 0, 8), Z(8));
+                kxkey = concat(new ByteArray(lmowf, 0, 8), Z(8));
             } else {
                 kxkey = sessionBaseKey;
             }
@@ -239,8 +240,8 @@ EndDefine
 Define NTOWFv1(Passwd, User, UserDom) as MD4(UNICODE(Passwd))
 EndDefine
      */
-    public static byte[] calculateNTOWFv1(String domain, String username, String password) {
-        return calculateMD4(password.getBytes(UNICODE_ENCODING));
+    private byte[] calculateNTOWFv1() {
+        return calculateMD4(toBytes(password, UNICODE_ENCODING));
     }
 
     /*
@@ -250,18 +251,21 @@ Define LMOWFv1(Passwd, User, UserDom) as
         DES( UpperCase( Passwd)[7..13],"KGS!@#$%"))
 EndDefine
      */
-    public static byte[] calculateLMOWFv1(String domain, String username, String password) {
+    private byte[] calculateLMOWFv1() {
         try {
-            byte[] pwb = password.toUpperCase().getBytes(ASCII_ENCODING);
+	    char[] pwu = new char[password.length];
+	    for (int i=0; i < pwu.length; i++) {
+	        pwu[i] = Character.toUpperCase(password[i]);
+	    }
+            byte[] pwb = toBytes(pwu, ASCII_ENCODING);
             byte[] out1 = calculateDES(new ByteArray(pwb, 0, 7), MAGIC_KGS_CONSTANT);
             byte[] out2 = calculateDES(new ByteArray(pwb, 7, 7), MAGIC_KGS_CONSTANT);
+	    Arrays.fill(pwu, '0');
+	    Arrays.fill(pwb, (byte)0x00);
             return concat(out1, out2);
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
         }
     }
-
-
-    
 }
 

@@ -22,13 +22,10 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.Z;
  * @version $Revision: $
  */
 public class NtlmV2Session extends NtlmSessionBase {
-    private byte[] ntowfv2;
+    public NtlmV2Session(ConnectionType connectionType, int negotiateFlags, WindowsVersion windowsVersion,
+		String hostname, String domain, String username, char[] password) {
 
-    public NtlmV2Session(ConnectionType connectionType, int negotiateFlags, byte[] ntowfv2, WindowsVersion windowsVersion,
-		String hostname, String domain, String username) {
-
-        super(connectionType, negotiateFlags, windowsVersion, hostname, domain, username);
-        this.ntowfv2 = ntowfv2;
+        super(connectionType, negotiateFlags, windowsVersion, hostname, domain, username, password);
     }
 
     /**
@@ -110,8 +107,8 @@ public class NtlmV2Session extends NtlmSessionBase {
 
     @Override
     protected void calculateNTLMResponse(ByteArray time, byte[] clientChallengeArray, ByteArray targetInfo) {
-        byte[] responseKeyNT = ntowfv2;
-        byte[] responseKeyLM = ntowfv2;
+        byte[] responseKeyNT = calculateNTOWFv2();
+        byte[] responseKeyLM = responseKeyNT;
         ByteArray clientChallenge = new ByteArray(clientChallengeArray);
 
         byte[] temp = concat(ALL_RESPONSER_VERSION, Z(6), time, clientChallenge, Z(4), targetInfo, Z(4));
@@ -161,10 +158,10 @@ public class NtlmV2Session extends NtlmSessionBase {
      * Set ResponseKeyNT to NTOWFv2(Passwd, User, UserDom)
      * Set ResponseKeyLM to LMOWFv2(Passwd, User, UserDom)
      */
-    public static byte[] calculateNTOWFv2(String domain, String username, String password) {
+    private byte[] calculateNTOWFv2() {
         try {
             MessageDigest md4 = createMD4();
-            md4.update(password.getBytes(UNICODE_ENCODING));
+            md4.update(toBytes(password, UNICODE_ENCODING));
 
             Mac hmacMD5 = createHmacMD5(md4.digest());
             hmacMD5.update(username.toUpperCase().getBytes(UNICODE_ENCODING));
