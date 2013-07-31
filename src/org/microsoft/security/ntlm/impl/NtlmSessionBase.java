@@ -69,7 +69,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     private ConnectionType connectionType;
     private WindowsVersion windowsVersion;
 
-    protected String hostname;
+    protected String workstation;
     protected String domain;
     protected String username;
     protected char[] password;
@@ -94,12 +94,12 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     ByteArray serverChallenge;
 
     public NtlmSessionBase(ConnectionType connectionType, int negotiateFlags, WindowsVersion windowsVersion,
-		String hostname, String domain, String username, char[] password) {
+		String workstation, String domain, String username, char[] password) {
 
         this.connectionType = connectionType;
         this.windowsVersion = windowsVersion;
-        this.hostname = hostname;
-        this.domain = domain;
+        this.workstation = workstation;
+        this.domain = "".equals(domain) ? null : domain;
         this.username = username;
 	this.password = password;
 	this.negotiateFlags = negotiateFlags;
@@ -256,9 +256,12 @@ public abstract class NtlmSessionBase  implements NtlmSession {
 
             negotiateFlags = NTLMSSP_NEGOTIATE_LM_KEY.excludeFlag(negotiateFlags);
         }
-	if (NTLMSSP_NEGOTIATE_TARGET_INFO.isSet(negotiateFlags)) {
-	    domain = challengeMessage.getTargetInfoPairs()[MsvAvNbDomainName].asString(UNICODE_ENCODING);
-	    hostname = challengeMessage.getTargetInfoPairs()[MsvAvNbComputerName].asString(UNICODE_ENCODING);
+	if (domain == null && NTLMSSP_NEGOTIATE_TARGET_INFO.isSet(negotiateFlags)) {
+	    //
+	    // If a user domain was not specified, then use the computer name supplied in the challenge message
+	    // (if supplied) as the target domain.
+	    //
+	    domain = challengeMessage.getTargetInfoPairs()[MsvAvNbComputerName].asString(UNICODE_ENCODING);
 	}
 
         serverChallenge = challengeMessage.getServerChallenge();
@@ -273,7 +276,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         authenticateMessage.appendStructure(ntChallengeResponse);
 	authenticateMessage.appendStructure(domain);
         authenticateMessage.appendStructure(username);
-	authenticateMessage.appendStructure(hostname);
+	authenticateMessage.appendStructure(workstation);
         authenticateMessage.appendStructure(encryptedRandomSessionKey);
         authenticateMessage.appendPlain(intToBytes(negotiateFlags));
 
@@ -383,11 +386,11 @@ public abstract class NtlmSessionBase  implements NtlmSession {
             negotiateMessage.appendPlain(intToBytes(negotiateFlags));
 /*
             negotiateMessage.appendStructure(domain);
-            negotiateMessage.appendStructure(hostname);
+            negotiateMessage.appendStructure(workstation);
 */
 //DAS
-negotiateMessage.appendStructure("");
-negotiateMessage.appendStructure("");
+	    negotiateMessage.appendStructure(""); // domain
+	    negotiateMessage.appendStructure(""); // workstation
             negotiateMessage.appendPlain(windowsVersion.data);
             negotiateMessageData = negotiateMessage.getData();
         } else {

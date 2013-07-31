@@ -30,8 +30,7 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_TARG
  */
 public class NtlmAuthenticator {
 
-//  private static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.Windows7;
-    private static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.WindowsXp;
+    private static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.Windows7;
 
     /**
      * 3.1.1.1 Variables Internal to the Protocol
@@ -203,7 +202,7 @@ public class NtlmAuthenticator {
      * 
      */
     public static NtlmSession createSession(NtlmVersion version, ConnectionType type, boolean seal,
-		String hostname, String domain, String username, char[] password) {
+		String workstation, String domain, String username, char[] password) {
 
 	/**
 	 * ClientConfigFlags: The set of client configuration flags (section 2.2.2.5) that specify the full set of
@@ -226,10 +225,10 @@ public class NtlmAuthenticator {
 
 	switch (version) {
 	  case ntlmv1:
-	    return new NtlmV1Session(type, flags, DEFAULT_WINDOWS_VERSION, hostname, domain, username, password);
+	    return new NtlmV1Session(type, flags, DEFAULT_WINDOWS_VERSION, workstation, domain, username, password);
 
 	  case ntlmv2:
-	    return new NtlmV2Session(type, flags, DEFAULT_WINDOWS_VERSION, hostname, domain, username, password);
+	    return new NtlmV2Session(type, flags, DEFAULT_WINDOWS_VERSION, workstation, domain, username, password);
 
 	  default:
 	    throw new RuntimeException("Internal error. Unsupported NTLM version");

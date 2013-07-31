@@ -23,9 +23,9 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.Z;
  */
 public class NtlmV2Session extends NtlmSessionBase {
     public NtlmV2Session(ConnectionType connectionType, int negotiateFlags, WindowsVersion windowsVersion,
-		String hostname, String domain, String username, char[] password) {
+		String workstation, String domain, String username, char[] password) {
 
-        super(connectionType, negotiateFlags, windowsVersion, hostname, domain, username, password);
+        super(connectionType, negotiateFlags, windowsVersion, workstation, domain, username, password);
     }
 
     /**

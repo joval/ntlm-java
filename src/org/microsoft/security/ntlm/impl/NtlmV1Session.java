@@ -40,9 +40,9 @@ public class NtlmV1Session extends NtlmSessionBase {
     private static final boolean NO_LM_RESPONSE_NTLM_V1 = false;
 
     public NtlmV1Session(ConnectionType connectionType, int negotiateFlags, WindowsVersion windowsVersion,
-		String hostname, String domain, String username, char[] password) {
+		String workstation, String domain, String username, char[] password) {
 
-        super(connectionType, negotiateFlags, windowsVersion, hostname, domain, username, password);
+        super(connectionType, negotiateFlags, windowsVersion, workstation, domain, username, password);
     }
 
 
