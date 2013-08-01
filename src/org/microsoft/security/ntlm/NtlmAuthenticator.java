@@ -29,8 +29,17 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_TARG
  * @version $Revision: $
  */
 public class NtlmAuthenticator {
+    /**
+     * A string that, when used as the domain, will transform into the target machine's Netbios name.
+     */
+    public static final String LOCALHOST = "LOCALHOST";
 
-    private static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.Windows7;
+    /**
+     * A string that, when used as the domain, will transform into the target machine's Netbios domain.
+     */
+    public static final String LOCALDOMAIN = "LOCALDOMAIN";
+
+    public static final WindowsVersion DEFAULT_WINDOWS_VERSION = WindowsVersion.Windows7;
 
     /**
      * 3.1.1.1 Variables Internal to the Protocol

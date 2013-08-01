@@ -47,7 +47,7 @@ javadocs:
 	$(JAVA_HOME)/bin/javadoc -d $(DOCS) -classpath $(CLASSPATH) $(PACKAGES)
 
 install: ntlm-core-1.0-r18.jar
-	cp $< $(TOP)/jOVAL-Commercial/components/provider/rsrc/lib
+	cp $< $(TOP)/jWSMV/components/winrs/rsrc/lib
 
 clean:
 	rm -rf $(BUILD)

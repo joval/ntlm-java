@@ -13,6 +13,8 @@ import org.microsoft.security.ntlm.NtlmSession;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.ConnectionType;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.NEGOTIATE_FLAGS_CONN;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.NEGOTIATE_FLAGS_CONNLESS;
+import static org.microsoft.security.ntlm.NtlmAuthenticator.LOCALHOST;
+import static org.microsoft.security.ntlm.NtlmAuthenticator.LOCALDOMAIN;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.WindowsVersion;
 import static org.microsoft.security.ntlm.impl.Algorithms.ByteArray;
 import static org.microsoft.security.ntlm.impl.Algorithms.EMPTY_ARRAY;
@@ -61,6 +63,7 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.signkey;
  */
 public abstract class NtlmSessionBase  implements NtlmSession {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+    private static final String NULL = null;
 
     static byte[] toBytes(char[] chars, Charset encoding) {
         return encoding.encode(CharBuffer.wrap(chars)).array();
@@ -99,7 +102,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         this.connectionType = connectionType;
         this.windowsVersion = windowsVersion;
         this.workstation = workstation;
-        this.domain = "".equals(domain) ? null : domain;
+        this.domain = "".equals(domain) ? LOCALHOST : domain;
         this.username = username;
 	this.password = password;
 	this.negotiateFlags = negotiateFlags;
@@ -256,12 +259,12 @@ public abstract class NtlmSessionBase  implements NtlmSession {
 
             negotiateFlags = NTLMSSP_NEGOTIATE_LM_KEY.excludeFlag(negotiateFlags);
         }
-	if (domain == null && NTLMSSP_NEGOTIATE_TARGET_INFO.isSet(negotiateFlags)) {
-	    //
-	    // If a user domain was not specified, then use the computer name supplied in the challenge message
-	    // (if supplied) as the target domain.
-	    //
-	    domain = challengeMessage.getTargetInfoPairs()[MsvAvNbComputerName].asString(UNICODE_ENCODING);
+	if (NTLMSSP_NEGOTIATE_TARGET_INFO.isSet(negotiateFlags)) {
+	    if (LOCALHOST.equalsIgnoreCase(domain)) {
+		domain = challengeMessage.getTargetInfoPairs()[MsvAvNbDomainName].asString(UNICODE_ENCODING);
+	    } else if (LOCALDOMAIN.equalsIgnoreCase(domain)) {
+		domain = challengeMessage.getTargetInfoPairs()[MsvAvNbComputerName].asString(UNICODE_ENCODING);
+	    }
 	}
 
         serverChallenge = challengeMessage.getServerChallenge();
@@ -388,9 +391,8 @@ public abstract class NtlmSessionBase  implements NtlmSession {
             negotiateMessage.appendStructure(domain);
             negotiateMessage.appendStructure(workstation);
 */
-//DAS
-	    negotiateMessage.appendStructure(""); // domain
-	    negotiateMessage.appendStructure(""); // workstation
+	    negotiateMessage.appendStructure(NULL); // domain
+	    negotiateMessage.appendStructure(NULL); // workstation
             negotiateMessage.appendPlain(windowsVersion.data);
             negotiateMessageData = negotiateMessage.getData();
         } else {
