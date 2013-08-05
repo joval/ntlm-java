@@ -261,9 +261,9 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         }
 	if (NTLMSSP_NEGOTIATE_TARGET_INFO.isSet(negotiateFlags)) {
 	    if (LOCALHOST.equalsIgnoreCase(domain) || domain == null) {
-		domain = challengeMessage.getTargetInfoPairs()[MsvAvNbDomainName].asString(UNICODE_ENCODING);
-	    } else if (LOCALDOMAIN.equalsIgnoreCase(domain)) {
 		domain = challengeMessage.getTargetInfoPairs()[MsvAvNbComputerName].asString(UNICODE_ENCODING);
+	    } else if (LOCALDOMAIN.equalsIgnoreCase(domain)) {
+		domain = challengeMessage.getTargetInfoPairs()[MsvAvNbDomainName].asString(UNICODE_ENCODING);
 	    }
 	}
 
