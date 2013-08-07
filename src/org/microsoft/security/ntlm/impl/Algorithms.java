@@ -297,6 +297,15 @@ public class Algorithms {
         return md5.digest();
     }
 
+    /**
+     * HMAC_MD5(K, M)
+     * Indicates the computation of a 16-byte HMAC-keyed MD5
+     * message digest of the byte string M using the key K.
+     *
+     * @param key K
+     * @param data M
+     * @return 16-byte digest
+     */
     public static byte[] calculateHmacMD5(byte[] key, ByteArray data) {
         Mac hmacMD5 = createHmacMD5(key);
         hmacMD5.update(data.getData(), data.getOffset(), data.getLength());
@@ -507,6 +516,16 @@ public class Algorithms {
         public String asString(Charset charset) {
             return new String(data, offset, length, charset);            
         }
+
+	public byte[] asByteArray() {
+	    if (offset == 0 && length == data.length) {
+		return data;
+	    } else {
+		byte[] byteArray = new byte[length];
+		copyTo(byteArray, 0);
+		return byteArray;
+	    }
+	}
 
 	public String toHex() {	
 	    int end = offset + length;

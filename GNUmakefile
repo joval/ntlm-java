@@ -37,21 +37,21 @@ CLASS_FILES:=$(foreach class, $(CLASSES), $(BUILD)/$(subst .,/,$(class)).class)
 PACKAGES=$(sort $(basename $(CLASSES)))
 PACKAGEDIRS=$(subst .,/,$(PACKAGES))
 
-all: ntlm-core-1.0-r18.jar
+all: ntlm-core-1.0-r20.jar
 
-ntlm-core-1.0-r18.jar: classes
+ntlm-core-1.0-r20.jar: classes
 	$(JAR) cvf $@ -C $(BUILD)/ .
 
 javadocs:
 	mkdir -p $(DOCS)
 	$(JAVA_HOME)/bin/javadoc -d $(DOCS) -classpath $(CLASSPATH) $(PACKAGES)
 
-install: ntlm-core-1.0-r18.jar
+install: ntlm-core-1.0-r20.jar
 	cp $< $(TOP)/jWSMV/components/winrs/rsrc/lib
 
 clean:
 	rm -rf $(BUILD)
-	rm ntlm-core-1.0-r18.jar
+	rm ntlm-core-1.0-r20.jar
 
 classes: classdirs $(CLASS_FILES)
 
