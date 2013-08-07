@@ -5,6 +5,8 @@ package org.microsoft.security.ntlm.impl;
 
 import java.nio.charset.Charset;
 import java.nio.CharBuffer;
+import java.security.SignatureException;
+import java.util.Arrays;
 import javax.crypto.Cipher;
 
 import org.microsoft.security.ntlm.NtlmAuthenticator;
@@ -181,8 +183,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
      * Set KeyExchangeKey to KXKEY(SessionBaseKey, LmChallengeResponse, CHALLENGE_MESSAGE.ServerChallenge)
      * If (NTLMSSP_NEGOTIATE_KEY_EXCH bit is set in CHALLENGE_MESSAGE.NegotiateFlags )
      *     Set ExportedSessionKey to NONCE(16)
-     *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to
-     *         RC4K(KeyExchangeKey, ExportedSessionKey)
+     *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to RC4K(KeyExchangeKey, ExportedSessionKey)
      * Else
      *     Set ExportedSessionKey to KeyExchangeKey
      *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to NIL
@@ -487,9 +488,17 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     /**
      * Unseal a message that was sealed by the server.
      */
-    public byte[] unseal(byte[] message) {
+    public byte[] unseal(byte[] message, byte[] signature) throws SignatureException {
         try {
-            return serverSealingKeyCipher.doFinal(message);
+            byte[] unsealed = serverSealingKeyCipher.doFinal(message);
+	    if (signature != null) {
+        	byte[] mac = mac(negotiateFlags, 0, serverSigningKey, serverSealingKeyCipher, EMPTY_ARRAY, unsealed);
+		if (!Arrays.equals(signature, mac)) {
+		    throw new SignatureException("Signature " + new ByteArray(mac).toHex() +
+			" does not match expected value " + new ByteArray(signature).toHex());
+		}
+	    }
+	    return unsealed;
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
         }

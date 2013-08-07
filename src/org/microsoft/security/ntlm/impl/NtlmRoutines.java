@@ -37,38 +37,38 @@ public class NtlmRoutines {
      * field of the NEGOTIATE_MESSAGE, CHALLENGE_MESSAGE, and AUTHENTICATE_MESSAGE, unless
      * otherwise noted. These flags define client or server NTLM capabilities supported by the sender.
      */
-    public static final int NTLMSSP_NEGOTIATE_UNICODE_FLAG			= 0x00000001;
-    public static final int NTLMSSP_NEGOTIATE_OEM_FLAG				= 0x00000002;
-    public static final int NTLMSSP_REQUEST_TARGET_FLAG				= 0x00000004;
-    public static final int r9							= 0x00000008;
-    public static final int NTLMSSP_NEGOTIATE_SIGN_FLAG				= 0x00000010;
-    public static final int NTLMSSP_NEGOTIATE_SEAL_FLAG				= 0x00000020;
-    public static final int NTLMSSP_NEGOTIATE_DATAGRAM_FLAG			= 0x00000040;
-    public static final int NTLMSSP_NEGOTIATE_LM_KEY_FLAG			= 0x00000080;
-    public static final int r8							= 0x00000100;
-    public static final int NTLMSSP_NEGOTIATE_NTLM_FLAG				= 0x00000200;
-    public static final int NTLMSSP_NEGOTIATE_NT_ONLY_FLAG			= 0x00000400;
-    public static final int NTLMSSP_NEGOTIATE_anonymous_FLAG			= 0x00000800;
-    public static final int NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED_FLAG		= 0x00001000;
-    public static final int NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED_FLAG	= 0x00002000;
-    public static final int r7							= 0x00004000;
-    public static final int NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG			= 0x00008000;
-    public static final int NTLMSSP_TARGET_TYPE_DOMAIN_FLAG			= 0x00010000;
-    public static final int NTLMSSP_TARGET_TYPE_SERVER_FLAG			= 0x00020000;
-    public static final int r6							= 0x00040000;
-    public static final int NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG	= 0x00080000;
-    public static final int NTLMSSP_NEGOTIATE_IDENTIFY_FLAG			= 0x00100000;
-    public static final int r5							= 0x00200000;
-    public static final int NTLMSSP_REQUEST_NON_NT_SESSION_KEY_FLAG		= 0x00400000;
-    public static final int NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG			= 0x00800000;
-    public static final int r4							= 0x01000000;
-    public static final int NTLMSSP_NEGOTIATE_VERSION_FLAG			= 0x02000000;
-    public static final int r3							= 0x04000000;
-    public static final int r2							= 0x08000000;
-    public static final int r1							= 0x10000000;
-    public static final int NTLMSSP_NEGOTIATE_128_FLAG				= 0x20000000;
-    public static final int NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG			= 0x40000000;
-    public static final int NTLMSSP_NEGOTIATE_56_FLAG				= 0x80000000;
+    public static final int NTLMSSP_NEGOTIATE_UNICODE_FLAG                        = 0x00000001;
+    public static final int NTLMSSP_NEGOTIATE_OEM_FLAG                                = 0x00000002;
+    public static final int NTLMSSP_REQUEST_TARGET_FLAG                                = 0x00000004;
+    public static final int r9                                                        = 0x00000008;
+    public static final int NTLMSSP_NEGOTIATE_SIGN_FLAG                                = 0x00000010;
+    public static final int NTLMSSP_NEGOTIATE_SEAL_FLAG                                = 0x00000020;
+    public static final int NTLMSSP_NEGOTIATE_DATAGRAM_FLAG                        = 0x00000040;
+    public static final int NTLMSSP_NEGOTIATE_LM_KEY_FLAG                        = 0x00000080;
+    public static final int r8                                                        = 0x00000100;
+    public static final int NTLMSSP_NEGOTIATE_NTLM_FLAG                                = 0x00000200;
+    public static final int NTLMSSP_NEGOTIATE_NT_ONLY_FLAG                        = 0x00000400;
+    public static final int NTLMSSP_NEGOTIATE_anonymous_FLAG                        = 0x00000800;
+    public static final int NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED_FLAG                = 0x00001000;
+    public static final int NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED_FLAG        = 0x00002000;
+    public static final int r7                                                        = 0x00004000;
+    public static final int NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG                        = 0x00008000;
+    public static final int NTLMSSP_TARGET_TYPE_DOMAIN_FLAG                        = 0x00010000;
+    public static final int NTLMSSP_TARGET_TYPE_SERVER_FLAG                        = 0x00020000;
+    public static final int r6                                                        = 0x00040000;
+    public static final int NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG        = 0x00080000;
+    public static final int NTLMSSP_NEGOTIATE_IDENTIFY_FLAG                        = 0x00100000;
+    public static final int r5                                                        = 0x00200000;
+    public static final int NTLMSSP_REQUEST_NON_NT_SESSION_KEY_FLAG                = 0x00400000;
+    public static final int NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG                        = 0x00800000;
+    public static final int r4                                                        = 0x01000000;
+    public static final int NTLMSSP_NEGOTIATE_VERSION_FLAG                        = 0x02000000;
+    public static final int r3                                                        = 0x04000000;
+    public static final int r2                                                        = 0x08000000;
+    public static final int r1                                                        = 0x10000000;
+    public static final int NTLMSSP_NEGOTIATE_128_FLAG                                = 0x20000000;
+    public static final int NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG                        = 0x40000000;
+    public static final int NTLMSSP_NEGOTIATE_56_FLAG                                = 0x80000000;
 
     /**
      * A (1 bit): If set, requests Unicode character set encoding. An alternate name for this field is
@@ -79,21 +79,21 @@ public class NtlmRoutines {
      * A==0 and B==0: The protocol MUST return SEC_E_INVALID_TOKEN.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_UNICODE =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_UNICODE_FLAG, "NTLMSSP_NEGOTIATE_UNICODE");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_UNICODE_FLAG, "NTLMSSP_NEGOTIATE_UNICODE");
 
     /**
      * B (1 bit): If set, requests OEM character set encoding. An alternate name for this field is
      * NTLM_NEGOTIATE_OEM. See bit A for details.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_OEM =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_OEM_FLAG, "NTLMSSP_NEGOTIATE_OEM");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_OEM_FLAG, "NTLMSSP_NEGOTIATE_OEM");
 
     /**
      * C (1 bit): If set, a TargetName field of the CHALLENGE_MESSAGE (section 2.2.1.2) MUST be
      * supplied. An alternate name for this field is NTLMSSP_REQUEST_TARGET.
      */
     public static final NegotiateFlagInfo NTLMSSP_REQUEST_TARGET =
-	new NegotiateFlagInfo(NTLMSSP_REQUEST_TARGET_FLAG, "NTLMSSP_REQUEST_TARGET");
+        new NegotiateFlagInfo(NTLMSSP_REQUEST_TARGET_FLAG, "NTLMSSP_REQUEST_TARGET");
 
     /**
      * D (1 bit): If set, requests session key negotiation for message signatures. If the client sends
@@ -102,7 +102,7 @@ public class NtlmRoutines {
      * name for this field is NTLMSSP_NEGOTIATE_SIGN.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_SIGN =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_SIGN_FLAG, "NTLMSSP_NEGOTIATE_SIGN");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_SIGN_FLAG, "NTLMSSP_NEGOTIATE_SIGN");
 
     /**
      * E (1 bit): If set, requests session key negotiation for message confidentiality. If the client sends
@@ -113,7 +113,7 @@ public class NtlmRoutines {
      * NTLMSSP_NEGOTIATE_SEAL.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_SEAL =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_SEAL_FLAG, "NTLMSSP_NEGOTIATE_SEAL");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_SEAL_FLAG, "NTLMSSP_NEGOTIATE_SEAL");
 
     /**
      * F (1 bit): If set, requests connectionless authentication. If NTLMSSP_NEGOTIATE_DATAGRAM is
@@ -122,7 +122,7 @@ public class NtlmRoutines {
      * alternate name for this field is NTLMSSP_NEGOTIATE_DATAGRAM.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_DATAGRAM =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_DATAGRAM_FLAG, "NTLMSSP_NEGOTIATE_DATAGRAM");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_DATAGRAM_FLAG, "NTLMSSP_NEGOTIATE_DATAGRAM");
 
     /**
      * G (1 bit): If set, requests LAN Manager (LM) session key computation.
@@ -136,7 +136,7 @@ public class NtlmRoutines {
      * NTLMSSP_NEGOTIATE_LM_KEY.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_LM_KEY =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_LM_KEY_FLAG, "NTLMSSP_NEGOTIATE_LM_KEY");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_LM_KEY_FLAG, "NTLMSSP_NEGOTIATE_LM_KEY");
 
     /**
      * H (1 bit): If set, requests usage of the NTLM v1 session security protocol.
@@ -145,7 +145,7 @@ public class NtlmRoutines {
      * NTLMSSP_NEGOTIATE_NTLM.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_NTLM =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_NTLM_FLAG, "NTLMSSP_NEGOTIATE_NTLM");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_NTLM_FLAG, "NTLMSSP_NEGOTIATE_NTLM");
 
     /**
      * r8 (1 bit): This bit is unused and SHOULD be zero. <26>
@@ -153,7 +153,7 @@ public class NtlmRoutines {
      * support it, so this bit is never used.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_NT_ONLY =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_NT_ONLY_FLAG, "NTLMSSP_NEGOTIATE_NT_ONLY");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_NT_ONLY_FLAG, "NTLMSSP_NEGOTIATE_NT_ONLY");
 
     /**
      * J (1 bit): If set, the connection SHOULD be anonymous. <25>
@@ -161,7 +161,7 @@ public class NtlmRoutines {
      * NTLM server does not use this bit when establishing the session.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_anonymous =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_anonymous_FLAG, "NTLMSSP_NEGOTIATE_anonymous");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_anonymous_FLAG, "NTLMSSP_NEGOTIATE_anonymous");
 
     /**
      * K (1 bit): If set, the domain name is provided (section 2.2.1.1).<24> An alternate name for
@@ -170,7 +170,7 @@ public class NtlmRoutines {
      * supported in Windows NT and Windows 2000.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED_FLAG, "NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED_FLAG, "NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED");
 
     /**
      * L (1 bit): This flag indicates whether the Workstation field is present. If this flag is not set, the
@@ -179,7 +179,7 @@ public class NtlmRoutines {
      * this field is NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED_FLAG, "NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED_FLAG, "NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED");
 
     /**
      * M (1 bit): If set, requests the presence of a signature block on all messages.
@@ -189,7 +189,7 @@ public class NtlmRoutines {
      * supported. An alternate name for this field is NTLMSSP_NEGOTIATE_ALWAYS_SIGN.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_ALWAYS_SIGN =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG, "NTLMSSP_NEGOTIATE_ALWAYS_SIGN");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG, "NTLMSSP_NEGOTIATE_ALWAYS_SIGN");
 
     /**
      * N (1 bit): If set, TargetName MUST be a domain name. The data corresponding to this flag is
@@ -199,7 +199,7 @@ public class NtlmRoutines {
      * NTLMSSP_TARGET_TYPE_DOMAIN.
      */
     public static final NegotiateFlagInfo NTLMSSP_TARGET_TYPE_DOMAIN =
-	new NegotiateFlagInfo(NTLMSSP_TARGET_TYPE_DOMAIN_FLAG, "NTLMSSP_TARGET_TYPE_DOMAIN");
+        new NegotiateFlagInfo(NTLMSSP_TARGET_TYPE_DOMAIN_FLAG, "NTLMSSP_TARGET_TYPE_DOMAIN");
 
     /**
      * O (1 bit): If set, TargetName MUST be a server name. The data corresponding to this flag is
@@ -209,7 +209,7 @@ public class NtlmRoutines {
      * is NTLMSSP_TARGET_TYPE_SERVER.
      */
     public static final NegotiateFlagInfo NTLMSSP_TARGET_TYPE_SERVER =
-	new NegotiateFlagInfo(NTLMSSP_TARGET_TYPE_SERVER_FLAG, "NTLMSSP_TARGET_TYPE_SERVER");
+        new NegotiateFlagInfo(NTLMSSP_TARGET_TYPE_SERVER_FLAG, "NTLMSSP_TARGET_TYPE_SERVER");
 
     /**
      * P (1 bit): If set, requests usage of the NTLM v2 session security. NTLM v2 session security is a
@@ -224,7 +224,7 @@ public class NtlmRoutines {
      * name for this field is NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG, "NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG, "NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY");
 
     /**
      * Q (1 bit): If set, requests an identify level token. An alternate name for this field is
@@ -235,14 +235,14 @@ public class NtlmRoutines {
      * to other resources.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_IDENTIFY =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_IDENTIFY_FLAG, "NTLMSSP_NEGOTIATE_IDENTIFY");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_IDENTIFY_FLAG, "NTLMSSP_NEGOTIATE_IDENTIFY");
 
     /**
      * R (1 bit): If set, requests the usage of the LMOWF (section 3.3). An alternate name for this
      * field is NTLMSSP_REQUEST_NON_NT_SESSION_KEY.
      */
     public static final NegotiateFlagInfo NTLMSSP_REQUEST_NON_NT_SESSION_KEY =
-	new NegotiateFlagInfo(NTLMSSP_REQUEST_NON_NT_SESSION_KEY_FLAG, "NTLMSSP_REQUEST_NON_NT_SESSION_KEY");
+        new NegotiateFlagInfo(NTLMSSP_REQUEST_NON_NT_SESSION_KEY_FLAG, "NTLMSSP_REQUEST_NON_NT_SESSION_KEY");
 
     /**
      * S (1 bit): If set, indicates that the TargetInfo fields in the CHALLENGE_MESSAGE (section
@@ -250,7 +250,7 @@ public class NtlmRoutines {
      * NTLMSSP_NEGOTIATE_TARGET_INFO.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_TARGET_INFO =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG, "NTLMSSP_NEGOTIATE_TARGET_INFO");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG, "NTLMSSP_NEGOTIATE_TARGET_INFO");
 
     /**
      * T (1 bit): If set, requests the protocol version number. The data corresponding to this flag is
@@ -262,7 +262,7 @@ public class NtlmRoutines {
      * and Windows 2000. This flag is used for debug purposes only.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_VERSION =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_VERSION_FLAG, "NTLMSSP_NEGOTIATE_VERSION");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_VERSION_FLAG, "NTLMSSP_NEGOTIATE_VERSION");
 
     /**
      * U (1 bit): If set, requests 128-bit session key negotiation. An alternate name for this field is
@@ -280,7 +280,7 @@ public class NtlmRoutines {
      * negotiation by default, therefore this bit will always be set.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_128 =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_128_FLAG, "NTLMSSP_NEGOTIATE_128");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_128_FLAG, "NTLMSSP_NEGOTIATE_128");
 
     /**
      * V (1 bit): If set, requests an explicit key exchange. This capability SHOULD be used because it
@@ -289,7 +289,7 @@ public class NtlmRoutines {
      * NTLMSSP_NEGOTIATE_KEY_EXCH.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_KEY_EXCH =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG, "NTLMSSP_NEGOTIATE_KEY_EXCH");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG, "NTLMSSP_NEGOTIATE_KEY_EXCH");
 
     /**
      * W (1 bit): If set, requests 56-bit encryption. If the client sends NTLMSSP_NEGOTIATE_SEAL or
@@ -303,7 +303,7 @@ public class NtlmRoutines {
      * NTLMSSP_NEGOTIATE_56.
      */
     public static final NegotiateFlagInfo NTLMSSP_NEGOTIATE_56 =
-	new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_56_FLAG, "NTLMSSP_NEGOTIATE_56");
+        new NegotiateFlagInfo(NTLMSSP_NEGOTIATE_56_FLAG, "NTLMSSP_NEGOTIATE_56");
 
     public static final NegotiateFlagInfo[] NEGOTIATE_FLAGS = {
             NTLMSSP_NEGOTIATE_UNICODE,
@@ -611,11 +611,13 @@ public class NtlmRoutines {
      */
 
     public static byte[] mac(int negotiateFlags, int seqNum, byte[] signingKey, Cipher sealingKey, byte[] randomPad,
-		byte[] message) {
+                byte[] message) {
 
-        return NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.isSet(negotiateFlags)
-                ? macWithExtendedSessionSecurity(negotiateFlags, seqNum, signingKey, sealingKey, message)
-                : macWithoutExtendedSessionSecurity(seqNum, randomPad, sealingKey, message);
+        if (NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.isSet(negotiateFlags)) {
+            return macWithExtendedSessionSecurity(negotiateFlags, seqNum, signingKey, sealingKey, message);
+        } else {
+            return macWithoutExtendedSessionSecurity(seqNum, randomPad, sealingKey, message);
+        }
     }
 
     private static final byte[] MAC_VERSION = {1, 0, 0, 0};
@@ -666,18 +668,18 @@ public class NtlmRoutines {
      * EndDefine
      */
     public static byte[] macWithoutExtendedSessionSecurity(int seqNumIn, byte[] randomPadIn, Cipher sealingKey,
-		byte[] message) {
+                byte[] message) {
 
         byte[] checksum = calculateCRC32(message);
         try {
-            /*byte[] randomPad = */sealingKey.doFinal(randomPadIn);
+            byte[] randomPad = sealingKey.doFinal(randomPadIn);
             checksum = sealingKey.doFinal(checksum);
             byte[] seqNum = sealingKey.doFinal(EMPTY_ARRAY);
             byte[] seqNumInArray = intToBytes(seqNumIn);
             for (int i = 0; i < seqNumInArray.length; i++) {
                 seqNum[i] = (byte) (seqNum[i] ^ seqNumInArray[i]);
             }
-            return concat(MAC_VERSION, EMPTY_ARRAY, checksum, seqNum);
+            return concat(MAC_VERSION, randomPad, checksum, seqNum);
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
         }
@@ -713,9 +715,7 @@ public class NtlmRoutines {
      * 
      * Define MAC(Handle, SigningKey, SeqNum, Message) as
      *     Set NTLMSSP_MESSAGE_SIGNATURE.Version to 0x00000001
-     *     Set NTLMSSP_MESSAGE_SIGNATURE.Checksum to
-     *         HMAC_MD5(SigningKey,
-     *             ConcatenationOf(SeqNum, Message))[0..7]
+     *     Set NTLMSSP_MESSAGE_SIGNATURE.Checksum to HMAC_MD5(SigningKey, ConcatenationOf(SeqNum, Message))[0..7]
      *     Set NTLMSSP_MESSAGE_SIGNATURE.SeqNum to SeqNum
      *     Set SeqNum to SeqNum + 1
      * EndDefine
@@ -725,28 +725,26 @@ public class NtlmRoutines {
      * RC4, as follows:
      * Define MAC(Handle, SigningKey, SeqNum, Message) as
      *     Set NTLMSSP_MESSAGE_SIGNATURE.Version to 0x00000001
-     *     Set NTLMSSP_MESSAGE_SIGNATURE.Checksum to RC4(Handle,
-     *         HMAC_MD5(SigningKey, ConcatenationOf(SeqNum, Message))[0..7])
+     *     Set NTLMSSP_MESSAGE_SIGNATURE.Checksum to RC4(Handle, HMAC_MD5(SigningKey, ConcatenationOf(SeqNum, Message))[0..7])
      *     Set NTLMSSP_MESSAGE_SIGNATURE.SeqNum to SeqNum
      *     Set SeqNum to SeqNum + 1
      * EndDefine
      */
     public static byte[] macWithExtendedSessionSecurity(int negotiateFlags, int seqNum, byte[] signingKey, Cipher sealingKey,
-		byte[] message) {
+                byte[] message) {
 
         Mac hmacMD5 = createHmacMD5(signingKey);
         hmacMD5.update(intToBytes(seqNum));
         hmacMD5.update(message);
-        byte[] md5Result = hmacMD5.doFinal();
-        ByteArray checksum;
+        byte[] md5Result = new byte[8];
+        System.arraycopy(hmacMD5.doFinal(), 0, md5Result, 0, 8);
+        byte[] checksum = md5Result;
         if (NTLMSSP_NEGOTIATE_KEY_EXCH.isSet(negotiateFlags)) {
             try {
-                checksum = new ByteArray(sealingKey.doFinal(md5Result, 0, 8));
+                checksum = sealingKey.doFinal(md5Result);
             } catch (Exception e) {
                 throw new RuntimeException("Internal error", e);
             }
-        } else {
-            checksum = new ByteArray(md5Result, 0, 8);
         }
         return concat(MAC_VERSION, checksum, intToBytes(seqNum));
     }
@@ -805,10 +803,10 @@ public class NtlmRoutines {
      *
      */
     public enum SignkeyMode {
-	client ("session key to client-to-server signing key magic constant\0",
-		"session key to client-to-server sealing key magic constant\0"),
+        client ("session key to client-to-server signing key magic constant\0",
+                "session key to client-to-server sealing key magic constant\0"),
         server ("session key to server-to-client signing key magic constant\0",
-		"session key to server-to-client sealing key magic constant\0");
+                "session key to server-to-client sealing key magic constant\0");
 
         final ByteArray signingMagicString;
         final ByteArray sealingMagicString;

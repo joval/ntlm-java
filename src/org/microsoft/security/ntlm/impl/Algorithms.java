@@ -171,7 +171,6 @@ public class Algorithms {
         byte[] out = new byte[in.length() / 2];
         int i = 0;
         for (int offset = 0; offset < in.length();) {
-//            String byteStr = "" + in.charAt(i) + in.charAt(i+1);
             char c1 = in.charAt(offset);
             if (c1 == ' ' || c1 == '-') { // skip spaces
                 offset++;
