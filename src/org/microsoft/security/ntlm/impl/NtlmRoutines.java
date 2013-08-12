@@ -337,7 +337,7 @@ public class NtlmRoutines {
 	    new NegotiateFlagInfo(0x10000000, "r1"),
 	    NTLMSSP_NEGOTIATE_128,
 	    NTLMSSP_NEGOTIATE_KEY_EXCH,
-	    NTLMSSP_NEGOTIATE_56,
+	    NTLMSSP_NEGOTIATE_56
     };
 
     public static final class NegotiateFlagInfo {
@@ -613,14 +613,11 @@ public class NtlmRoutines {
     /*
      * 3.4.4 Message Signature Functions
      */
-
-    public static byte[] mac(int negotiateFlags, int seqNum, byte[] signingKey, Cipher sealingKey, byte[] randomPad,
-		byte[] message) {
-
+    public static byte[] mac(int negotiateFlags, int seqNum, byte[] signingKey, Cipher sealingKey, byte[] message) {
 	if (NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.isSet(negotiateFlags)) {
-	    return macWithExtendedSessionSecurity(negotiateFlags, seqNum, signingKey, sealingKey, message);
+	    return macWithESS(negotiateFlags, seqNum, signingKey, sealingKey, message);
 	} else {
-	    return macWithoutExtendedSessionSecurity(seqNum, randomPad, sealingKey, message);
+	    return macWithoutESS(seqNum, sealingKey, message);
 	}
     }
 
@@ -671,12 +668,10 @@ public class NtlmRoutines {
      *     Set NTLMSSP_MESSAGE_SIGNATURE.RandomPad to 0
      * EndDefine
      */
-    public static byte[] macWithoutExtendedSessionSecurity(int seqNumIn, byte[] randomPadIn, Cipher sealingKey,
-		byte[] message) {
-
+    static byte[] macWithoutESS(int seqNumIn, Cipher sealingKey, byte[] message) {
 	byte[] checksum = calculateCRC32(message);
 	try {
-	    byte[] randomPad = sealingKey.doFinal(randomPadIn);
+	    byte[] randomPad = sealingKey.doFinal(EMPTY_ARRAY);
 	    checksum = sealingKey.doFinal(checksum);
 	    byte[] seqNum = sealingKey.doFinal(EMPTY_ARRAY);
 	    byte[] seqNumInArray = intToBytes(seqNumIn);
@@ -734,18 +729,14 @@ public class NtlmRoutines {
      *     Set SeqNum to SeqNum + 1
      * EndDefine
      */
-    public static byte[] macWithExtendedSessionSecurity(int negotiateFlags, int seqNum, byte[] signingKey, Cipher sealingKey,
-		byte[] message) {
-
+    static byte[] macWithESS(int negotiateFlags, int seqNum, byte[] signingKey, Cipher sealingKey, byte[] message) {
 	Mac hmacMD5 = createHmacMD5(signingKey);
 	hmacMD5.update(intToBytes(seqNum));
 	hmacMD5.update(message);
-	byte[] md5Result = new byte[8];
-	System.arraycopy(hmacMD5.doFinal(), 0, md5Result, 0, 8);
-	byte[] checksum = md5Result;
+	byte[] checksum = new ByteArray(hmacMD5.doFinal(), 0, 8).asByteArray();
 	if (NTLMSSP_NEGOTIATE_KEY_EXCH.isSet(negotiateFlags)) {
 	    try {
-		checksum = sealingKey.doFinal(md5Result);
+		checksum = sealingKey.doFinal(checksum);
 	    } catch (Exception e) {
 		throw new RuntimeException("Internal error", e);
 	    }

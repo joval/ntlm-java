@@ -15,6 +15,7 @@ import static org.microsoft.security.ntlm.impl.Algorithms.calculateHmacMD5;
 import static org.microsoft.security.ntlm.impl.Algorithms.concat;
 import static org.microsoft.security.ntlm.impl.Algorithms.createHmacMD5;
 import static org.microsoft.security.ntlm.impl.Algorithms.createMD4;
+import static org.microsoft.security.ntlm.impl.Algorithms.nonce;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.Z;
 
 /**
@@ -106,10 +107,10 @@ public class NtlmV2Session extends NtlmSessionBase {
     private static final ByteArray ALL_RESPONSER_VERSION = new ByteArray(new byte[]{1, 1});
 
     @Override
-    protected void calculateNTLMResponse(ByteArray time, byte[] clientChallengeArray, ByteArray targetInfo) {
+    protected void calculateNTLMResponse(ByteArray time, ByteArray targetInfo) {
         byte[] responseKeyNT = calculateNTOWFv2();
         byte[] responseKeyLM = responseKeyNT;
-        ByteArray clientChallenge = new ByteArray(clientChallengeArray);
+        ByteArray clientChallenge = new ByteArray(nonce(8));
 
         byte[] temp = concat(ALL_RESPONSER_VERSION, Z(6), time, clientChallenge, Z(4), targetInfo, Z(4));
         byte[] ntProofStr = calculateHmacMD5(responseKeyNT, concat(serverChallenge, temp));
@@ -129,7 +130,7 @@ public class NtlmV2Session extends NtlmSessionBase {
 	    // the client SHOULD NOT send the LmChallengeResponse and SHOULD set the LmChallengeResponseLen
 	    // and LmChallengeResponseMaxLen fields in the AUTHENTICATE_MESSAGE to zero. <41>
 	    // 
-	    lmChallengeResponse = new byte[24]; // DAS - in NTLMv2, this SHOULD BE all NULLs
+	    lmChallengeResponse = new byte[0]; // Note - WinRM has been observed to insert 24 0's.
 	}
         sessionBaseKey = calculateHmacMD5(responseKeyNT, ntProofStr);
     }

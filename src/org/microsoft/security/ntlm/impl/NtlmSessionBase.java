@@ -13,8 +13,6 @@ import org.microsoft.security.ntlm.NtlmAuthenticator;
 import org.microsoft.security.ntlm.NtlmSession;
 
 import static org.microsoft.security.ntlm.NtlmAuthenticator.ConnectionType;
-import static org.microsoft.security.ntlm.NtlmAuthenticator.NEGOTIATE_FLAGS_CONN;
-import static org.microsoft.security.ntlm.NtlmAuthenticator.NEGOTIATE_FLAGS_CONNLESS;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.LOCALHOST;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.LOCALDOMAIN;
 import static org.microsoft.security.ntlm.NtlmAuthenticator.WindowsVersion;
@@ -22,6 +20,7 @@ import static org.microsoft.security.ntlm.impl.Algorithms.ByteArray;
 import static org.microsoft.security.ntlm.impl.Algorithms.EMPTY_ARRAY;
 import static org.microsoft.security.ntlm.impl.Algorithms.ASCII_ENCODING;
 import static org.microsoft.security.ntlm.impl.Algorithms.UNICODE_ENCODING;
+import static org.microsoft.security.ntlm.impl.Algorithms.bytesTo4;
 import static org.microsoft.security.ntlm.impl.Algorithms.calculateHmacMD5;
 import static org.microsoft.security.ntlm.impl.Algorithms.calculateRC4K;
 import static org.microsoft.security.ntlm.impl.Algorithms.concat;
@@ -39,17 +38,7 @@ import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_UN
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_VERSION;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_TARGET_TYPE_DOMAIN;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_TARGET_TYPE_SERVER;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_UNICODE_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_SIGN_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_NTLM_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_128_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_56_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_TARGET_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_TARGET_INFO;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_VERSION_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.MsvAvNbDomainName;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.MsvAvNbComputerName;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.KeyMode;
@@ -175,30 +164,14 @@ public abstract class NtlmSessionBase  implements NtlmSession {
      * ComputeResponse(CHALLENGE_MESSAGE.NegotiateFlags, ResponseKeyNT, ResponseKeyLM, CHALLENGE_MESSAGE.ServerChallenge,
      *         AUTHENTICATE_MESSAGE.ClientChallenge, Time, CHALLENGE_MESSAGE.TargetInfo)
      * 
-     * Set KeyExchangeKey to KXKEY(SessionBaseKey, LmChallengeResponse, CHALLENGE_MESSAGE.ServerChallenge)
-     * If (NTLMSSP_NEGOTIATE_KEY_EXCH bit is set in CHALLENGE_MESSAGE.NegotiateFlags )
-     *     Set ExportedSessionKey to NONCE(16)
-     *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to RC4K(KeyExchangeKey, ExportedSessionKey)
-     * Else
-     *     Set ExportedSessionKey to KeyExchangeKey
-     *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to NIL
-     * Endif
-     * 
-     * Set ClientSigningKey to SIGNKEY(NegFlg, ExportedSessionKey, "Client")
-     * Set ServerSigningKey to SIGNKEY(NegFlg, ExportedSessionKey, "Server")
-     * Set ClientSealingKey to SEALKEY(NegFlg, ExportedSessionKey, "Client")
-     * Set ServerSealingKey to SEALKEY(NegFlg, ExportedSessionKey, "Server")
-     * 
-     * RC4Init(ClientHandle, ClientSealingKey)
-     * RC4Init(ServerHandle, ServerSealingKey)
-     * 
-     * Set MIC to HMAC_MD5(ExportedSessionKey, ConcatenationOf(NEGOTIATE_MESSAGE, CHALLENGE_MESSAGE, AUTHENTICATE_MESSAGE))
-     * Set AUTHENTICATE_MESSAGE.MIC to MIC
-     * 
      */
     @Override
     public void processChallengeMessage(byte[] challengeMessageData) {
         NtlmChallengeMessage challengeMessage = new NtlmChallengeMessage(challengeMessageData);
+
+	//
+	// Update negotiateFlags according to known rules
+	//
         negotiateFlags = challengeMessage.getNegotiateFlags();
 	negotiateFlags = NTLMSSP_TARGET_TYPE_DOMAIN.excludeFlag(negotiateFlags);
 	negotiateFlags = NTLMSSP_TARGET_TYPE_SERVER.excludeFlag(negotiateFlags);
@@ -235,7 +208,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         }
 
         serverChallenge = challengeMessage.getServerChallenge();
-        calculateNTLMResponse(time, nonce(8), challengeMessage.getTargetInfo());
+        calculateNTLMResponse(time, challengeMessage.getTargetInfo());
         calculateKeys();
 
 	//
@@ -268,6 +241,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
             authenticateMessage.appendPlain(windowsVersion.data);
         }
 
+	//
 	// The message integrity for the NTLM NEGOTIATE_MESSAGE,
 	// CHALLENGE_MESSAGE, and AUTHENTICATE_MESSAGE.<10>
 	// 
@@ -289,15 +263,14 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         }
     }
 
-    protected abstract void calculateNTLMResponse(ByteArray time, byte[] clientChallenge, ByteArray targetInfo);
+    protected abstract void calculateNTLMResponse(ByteArray time, ByteArray targetInfo);
 
     /**
      * 3.1.5.1.2
      * Set KeyExchangeKey to KXKEY(SessionBaseKey, LmChallengeResponse, CHALLENGE_MESSAGE.ServerChallenge)
      * If (NTLMSSP_NEGOTIATE_KEY_EXCH bit is set in CHALLENGE_MESSAGE.NegotiateFlags )
      *     Set ExportedSessionKey to NONCE(16)
-     *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to
-     *         RC4K(KeyExchangeKey, ExportedSessionKey)
+     *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to RC4K(KeyExchangeKey, ExportedSessionKey)
      * Else
      *     Set ExportedSessionKey to KeyExchangeKey
      *     Set AUTHENTICATE_MESSAGE.EncryptedRandomSessionKey to NIL
@@ -365,41 +338,34 @@ public abstract class NtlmSessionBase  implements NtlmSession {
         }
         clientSealingKeyCipher = reinitSealingKey(clientSealingKey, seqNum);
         serverSealingKeyCipher = reinitSealingKey(serverSealingKey, seqNum);
-
         this.seqNum = seqNum;
     }
 
     /**
-     * 3.4.2 Message Integrity
-     * The function to sign a message MUST be calculated as follows:
-     * -- Input:
-     * --  SigningKey - The key used to sign the message.
-     * --  Message - The message being sent between the client and server.
-     * --  SeqNum - Defined in section 3.1.1.
-     * --  Handle - The handle to a key state structure corresponding to
-     * --      the current state of the SealingKey
-     * --
-     * -- Output:Signed message
-     * -- Functions used:
-     * --  ConcatenationOf() - Defined in Section 6.
-     * --  MAC() - Defined in section 3.4.3.
+     * 2.2.2.9 NTLMSSP_MESSAGE_SIGNATURE
+     * The NTLMSSP_MESSAGE_SIGNATURE structure (section 3.4.4), specifies the signature block used
+     * for application message integrity and confidentiality. This structure is then passed back to the
+     * application, which embeds it within the application protocol messages, along with the NTLM-
+     * encrypted or integrity-protected application message data.
+     * This structure MUST take one of the two following forms, depending on whether the
+     * NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY flag is negotiated:
+     * NTLMSSP_MESSAGE_SIGNATURE
+     * NTLMSSP_MESSAGE_SIGNATURE for Extended Session Security
      * 
-     * Define SIGN(Handle, SigningKey, SeqNum, Message) as
-     * ConcatenationOf(Message, MAC(Handle, SigningKey, SeqNum, Message))
-     * EndDefine
      * 
-     * Note If the client is sending the message, the signing key is the one that the client calculated. If
-     * the server is sending the message, the signing key is the one that the server calculated. The same
-     * is true for the sealing key. The sequence number can be explicitly provided by the application
-     * protocol or by the NTLM security service provider. If the latter is chosen, the sequence number is
-     * initialized to zero and then incremented by one for each message sent.
-     * 
-     * On receipt, the message authentication code (MAC) value is computed and compared with the
-     * received value. If they differ, the message MUST be discarded (section 3.4.4).
-     * 
+     * 2.2.2.9.2 NTLMSSP_MESSAGE_SIGNATURE for Extended Session Security
+     * This version of the NTLMSSP_MESSAGE_SIGNATURE structure MUST be used when the
+     * NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY flag is negotiated.
+     * Version (4 bytes): A 32-bit unsigned integer MUST be 0x00000001
+     * Checksum (8 bytes):
+     * SeqNum (4 bytes):
      */
-    public byte[] sign(byte[] message) {
-	return concat(message, calculateMac(message));
+    private byte[] sign(byte[] message) {
+        byte[] mac = mac(negotiateFlags, seqNum, clientSigningKey, clientSealingKeyCipher, message);
+        if (connectionType == ConnectionType.connectionOriented) {
+            seqNum++;
+        }
+        return mac;
     }
 
     /**
@@ -434,7 +400,9 @@ public abstract class NtlmSessionBase  implements NtlmSession {
      */
     public byte[] seal(byte[] message) {
         try {
-            return clientSealingKeyCipher.doFinal(message);
+	    byte[] sealed = clientSealingKeyCipher.update(message);
+	    byte[] signature = sign(message);
+	    return concat(intToBytes(signature.length), signature, sealed);
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
         }
@@ -443,47 +411,24 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     /**
      * Unseal a message that was sealed by the server.
      */
-    public byte[] unseal(byte[] message, byte[] signature) throws SignatureException {
+    public byte[] unseal(byte[] encrypted) throws SignatureException {
         try {
-            byte[] unsealed = serverSealingKeyCipher.doFinal(message);
-	    if (signature != null) {
-        	byte[] mac = mac(negotiateFlags, 0, serverSigningKey, serverSealingKeyCipher, EMPTY_ARRAY, unsealed);
-		if (!Arrays.equals(signature, mac)) {
-		    throw new SignatureException("Signature " + new ByteArray(mac).toHex() +
+	    int sigLen = bytesTo4(encrypted, 0);
+	    int offset = 4 + sigLen;
+	    int messageLen = encrypted.length - offset;
+            byte[] unsealed = serverSealingKeyCipher.update(encrypted, offset, messageLen);
+
+            byte[] signature = new ByteArray(encrypted, 4, sigLen).asByteArray();
+	    int seqNum = bytesTo4(signature, sigLen - 4); // last 4 bytes are sequence number
+            byte[] mac = mac(negotiateFlags, seqNum, serverSigningKey, serverSealingKeyCipher, unsealed);
+	    if (!Arrays.equals(signature, mac)) {
+		throw new SignatureException("Signature " + new ByteArray(mac).toHex() +
 			" does not match expected value " + new ByteArray(signature).toHex());
-		}
 	    }
 	    return unsealed;
         } catch (Exception e) {
             throw new RuntimeException("Internal error", e);
         }
-    }
-
-    /**
-     * 2.2.2.9 NTLMSSP_MESSAGE_SIGNATURE
-     * The NTLMSSP_MESSAGE_SIGNATURE structure (section 3.4.4), specifies the signature block used
-     * for application message integrity and confidentiality. This structure is then passed back to the
-     * application, which embeds it within the application protocol messages, along with the NTLM-
-     * encrypted or integrity-protected application message data.
-     * This structure MUST take one of the two following forms, depending on whether the
-     * NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY flag is negotiated:
-     * NTLMSSP_MESSAGE_SIGNATURE
-     * NTLMSSP_MESSAGE_SIGNATURE for Extended Session Security
-     * 
-     * 
-     * 2.2.2.9.2 NTLMSSP_MESSAGE_SIGNATURE for Extended Session Security
-     * This version of the NTLMSSP_MESSAGE_SIGNATURE structure MUST be used when the
-     * NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY flag is negotiated.
-     * Version (4 bytes): A 32-bit unsigned integer MUST be 0x00000001
-     * Checksum (8 bytes):
-     * SeqNum (4 bytes):
-     */
-    public byte[] calculateMac(byte[] message) {
-        byte[] mac = mac(negotiateFlags, seqNum, clientSigningKey, clientSealingKeyCipher, EMPTY_ARRAY, message);
-        if (connectionType == ConnectionType.connectionOriented) {
-            seqNum++;
-        }
-        return mac;
     }
 
     /**
@@ -504,6 +449,10 @@ public abstract class NtlmSessionBase  implements NtlmSession {
      * 
      */
     public byte[] generateAuthenticateMessage() {
-        return authenticateMessage.getData();
+	if (authenticateMessage == null) {
+	    throw new IllegalStateException("You must first process a challenge message");
+	} else {
+            return authenticateMessage.getData();
+	}
     }
 }

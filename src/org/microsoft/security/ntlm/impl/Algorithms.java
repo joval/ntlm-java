@@ -475,9 +475,7 @@ public class Algorithms {
         private int length;
 
         public ByteArray(byte[] data) {
-            this.data = data;
-            offset = 0;
-            length = data.length;
+	    this(data, 0, data.length);
         }
 
         public ByteArray(byte[] data, int offset, int length) {
@@ -528,10 +526,16 @@ public class Algorithms {
 	}
 
 	public String toHex() {	
-	    int end = offset + length;
 	    StringBuffer sb = new StringBuffer();
-	    for (int i=offset; i < end; i++) {
-		String h = Integer.toHexString(data[i]);
+
+	    for (int i=0; i < length; i++) {
+		if (i > 0) {
+		    sb.append(" ");
+		    if (i % 16 == 0) {
+			sb.append("\n");
+		    }
+		}
+		String h = Integer.toHexString(0xFF & data[offset + i]);
 		if (h.length() == 1) {
 		    sb.append("0");
 		}

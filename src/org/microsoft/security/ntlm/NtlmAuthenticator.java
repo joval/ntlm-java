@@ -7,20 +7,28 @@ import org.microsoft.security.ntlm.impl.Algorithms;
 import org.microsoft.security.ntlm.impl.NtlmV1Session;
 import org.microsoft.security.ntlm.impl.NtlmV2Session;
 
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_128_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_56_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_DATAGRAM_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_IDENTIFY_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_NTLM_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_UNICODE_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_OEM_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_TARGET_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_SIGN_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_SEAL_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_DATAGRAM_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_LM_KEY_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_NTLM_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_NT_ONLY_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_TARGET_TYPE_DOMAIN_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_TARGET_TYPE_SERVER_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_IDENTIFY_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_NON_NT_SESSION_KEY_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_UNICODE_FLAG;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_VERSION_FLAG;
-import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_TARGET_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_128_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG;
+import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_56_FLAG;
 
 /**
  *
@@ -112,44 +120,42 @@ public class NtlmAuthenticator {
      */
 
     /**
-     * Minimum set of common features we need to work.
-     * we operate in NTLMv2 mode
+     * Negotiate flags for connectionless NTLM
      */
-    private static final int NEGOTIATE_FLAGS_COMMON_MIN =
+    public static final int NEGOTIATE_FLAGS_CONNLESS =
 	( NTLMSSP_NEGOTIATE_UNICODE_FLAG |
+	  NTLMSSP_REQUEST_TARGET_FLAG |
+	  NTLMSSP_NEGOTIATE_SIGN_FLAG |
+	  NTLMSSP_NEGOTIATE_DATAGRAM_FLAG |
 	  NTLMSSP_NEGOTIATE_NTLM_FLAG |
 	  NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG |
 	  NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG |
-	  NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG
-	);
-
-    /**
-     * Negotiate flags for connection-based mode. Nice to have but optional.
-     */
-    public static final int NEGOTIATE_FLAGS_CONN =
-	( NEGOTIATE_FLAGS_COMMON_MIN |
+	  NTLMSSP_NEGOTIATE_IDENTIFY_FLAG |
+	  NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG |
 	  NTLMSSP_NEGOTIATE_VERSION_FLAG |
 	  NTLMSSP_NEGOTIATE_128_FLAG |
-	  NTLMSSP_NEGOTIATE_56_FLAG |
-	  NTLMSSP_REQUEST_TARGET_FLAG
+	  NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG |
+	  NTLMSSP_NEGOTIATE_56_FLAG
 	);
 
     /**
-     * Extra negotiate flags required in connectionless NTLM
+     * Negotiate flags for connection-based mode: 0xE28882B7
      */
-    private static final int NEGOTIATE_FLAGS_CONNLESS_EXTRA =
-	( NTLMSSP_NEGOTIATE_SIGN_FLAG |
-	  NTLMSSP_NEGOTIATE_DATAGRAM_FLAG |
-	  NTLMSSP_NEGOTIATE_IDENTIFY_FLAG |
-	  NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG
-	);
-
-    /**
-     * Negotiate flags required in connectionless NTLM
-     */
-    public static final int NEGOTIATE_FLAGS_CONNLESS =
-	( NEGOTIATE_FLAGS_CONN |
-	  NEGOTIATE_FLAGS_CONNLESS_EXTRA
+    public static final int NEGOTIATE_FLAGS_CONN =
+	( NTLMSSP_NEGOTIATE_UNICODE_FLAG |
+	  NTLMSSP_NEGOTIATE_OEM_FLAG |
+	  NTLMSSP_REQUEST_TARGET_FLAG |
+	  NTLMSSP_NEGOTIATE_SIGN_FLAG |
+	  NTLMSSP_NEGOTIATE_SEAL_FLAG |
+	  NTLMSSP_NEGOTIATE_LM_KEY_FLAG |
+	  NTLMSSP_NEGOTIATE_NTLM_FLAG |
+	  NTLMSSP_NEGOTIATE_ALWAYS_SIGN_FLAG |
+	  NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY_FLAG |
+	  NTLMSSP_NEGOTIATE_TARGET_INFO_FLAG |
+	  NTLMSSP_NEGOTIATE_VERSION_FLAG |
+	  NTLMSSP_NEGOTIATE_128_FLAG |
+	  NTLMSSP_NEGOTIATE_KEY_EXCH_FLAG |
+	  NTLMSSP_NEGOTIATE_56_FLAG
 	);
 
     /**

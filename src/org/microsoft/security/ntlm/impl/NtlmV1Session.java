@@ -13,6 +13,7 @@ import static org.microsoft.security.ntlm.impl.Algorithms.calculateHmacMD5;
 import static org.microsoft.security.ntlm.impl.Algorithms.calculateMD4;
 import static org.microsoft.security.ntlm.impl.Algorithms.calculateMD5;
 import static org.microsoft.security.ntlm.impl.Algorithms.concat;
+import static org.microsoft.security.ntlm.impl.Algorithms.nonce;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_NEGOTIATE_LM_KEY;
 import static org.microsoft.security.ntlm.impl.NtlmRoutines.NTLMSSP_REQUEST_NON_NT_SESSION_KEY;
@@ -124,7 +125,7 @@ Set SessionBaseKey to MD4(NTOWF)
      */
 
     @Override
-    protected void calculateNTLMResponse(ByteArray time, byte[] clientChallengeArray, ByteArray targetInfo) {
+    protected void calculateNTLMResponse(ByteArray time, ByteArray targetInfo) {
 	byte[] ntowf = calculateNTOWFv1();
 	byte[] lmowf = calculateLMOWFv1();
 
@@ -133,8 +134,10 @@ Set SessionBaseKey to MD4(NTOWF)
             ntChallengeResponse = null;
             lmChallengeResponse = calculateDESL(lmowf, serverChallenge);
         } else if (NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.isSet(negotiateFlags)) {
-            ntChallengeResponse = calculateDESL(ntowf, new ByteArray(calculateMD5(concat(serverChallenge, clientChallengeArray)), 0, 8));
-            lmChallengeResponse = concat(clientChallengeArray, Z(16));
+	    byte[] clientChallenge = nonce(8); // client challenge
+            ntChallengeResponse = calculateDESL(ntowf,
+						new ByteArray(calculateMD5(concat(serverChallenge, clientChallenge)), 0, 8));
+            lmChallengeResponse = concat(clientChallenge, Z(16));
         } else {
             ntChallengeResponse = calculateDESL(ntowf, serverChallenge);
             lmChallengeResponse = NO_LM_RESPONSE_NTLM_V1 ? ntChallengeResponse : calculateDESL(lmowf, serverChallenge);

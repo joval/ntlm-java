@@ -7,6 +7,9 @@ import java.security.SignatureException;
  * @version $Id:$
  */
 public interface NtlmSession {
+    /**
+     * Create a negotiate message to send to the server.
+     */
     byte[] generateNegotiateMessage();
 
     /**
@@ -14,25 +17,25 @@ public interface NtlmSession {
      */
     void processChallengeMessage(byte[] challengeMessageData);
 
+    /**
+     * Create a negotiate message to send to the server. Call after processing a challenge message.
+     */
     byte[] generateAuthenticateMessage();
     
+    /**
+     * For connectionless sessions.
+     */
     void updateSequenceNumber(int seqNum);
 
-    byte[] sign(byte[] message);
-
+    /**
+     * Encrypt a message that will be sent to the server. Result will be a MAC followed by the encrypted message.
+     */
     byte[] seal(byte[] message);
 
     /**
-     * Unseal the specified message received from the server.
+     * Decrypt (and validate) an encrypted message received from the server.
      *
-     * @param message the encrypted message bytes
-     * @param signature if not null, the signature against which the decrypted message will be verified
      * @throws SignatureException if the signature does not match the decrypted data
      */
-    byte[] unseal(byte[] message, byte[] signature) throws SignatureException;
-
-    /**
-     * Determine the signature for a message that will be sent to the server.
-     */
-    byte[] calculateMac(byte[] message);
+    byte[] unseal(byte[] encrypted) throws SignatureException;
 }
