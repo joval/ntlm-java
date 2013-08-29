@@ -369,6 +369,22 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     }
 
     /**
+     * 3.1.5.1
+     *
+     * When encryption is desired, the stream cipher RC4 is used. The key for RC4 is established at
+     * the start of the session for an instance of RC4 dedicated to that session. RC4 then continues
+     * to generate key stream in order over all messages of the session, without rekeying.
+     *
+     * The pseudocode RC4(handle, message) is defined as the bytes of the message XORed with bytes of
+     * the RC4 key stream, using the current state of the session's RC4 internal key state. When the
+     * session is torn down, the key structure is destroyed.
+     *
+     * The pseudocode RC4K(key,message) is defined as a one-time instance of RC4 whose key is
+     * initialized to key, after which RC4 is applied to the message. On completion of this operation,
+     * the internal key state is destroyed.
+     *
+     * ...
+     *
      * 3.4.3 Message Confidentiality
      * Message confidentiality, if it is negotiated, also implies message integrity. If message confidentiality
      * is negotiated, a sealed (and implicitly signed) message is sent instead of a signed or unsigned
