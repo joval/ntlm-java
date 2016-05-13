@@ -671,9 +671,9 @@ public class NtlmRoutines {
     static byte[] macWithoutESS(int seqNumIn, Cipher sealingKey, byte[] message) {
 	byte[] checksum = calculateCRC32(message);
 	try {
-	    byte[] randomPad = sealingKey.doFinal(EMPTY_ARRAY);
-	    checksum = sealingKey.doFinal(checksum);
-	    byte[] seqNum = sealingKey.doFinal(EMPTY_ARRAY);
+	    byte[] randomPad = sealingKey.update(EMPTY_ARRAY);
+	    checksum = sealingKey.update(checksum);
+	    byte[] seqNum = sealingKey.update(EMPTY_ARRAY);
 	    byte[] seqNumInArray = intToBytes(seqNumIn);
 	    for (int i = 0; i < seqNumInArray.length; i++) {
 		seqNum[i] = (byte) (seqNum[i] ^ seqNumInArray[i]);
@@ -736,7 +736,7 @@ public class NtlmRoutines {
 	byte[] checksum = new ByteArray(hmacMD5.doFinal(), 0, 8).asByteArray();
 	if (NTLMSSP_NEGOTIATE_KEY_EXCH.isSet(negotiateFlags)) {
 	    try {
-		checksum = sealingKey.doFinal(checksum);
+		checksum = sealingKey.update(checksum);
 	    } catch (Exception e) {
 		throw new RuntimeException("Internal error", e);
 	    }

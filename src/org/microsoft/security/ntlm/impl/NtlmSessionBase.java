@@ -84,7 +84,7 @@ public abstract class NtlmSessionBase  implements NtlmSession {
     private byte[] serverSealingKey;
     private Cipher clientSealingKeyCipher;
     private Cipher serverSealingKeyCipher;
-    private int seqNum;
+    private int seqNum = 0;
 
     private byte[] negotiateMessageData;
     private NtlmMessage authenticateMessage;

@@ -1,10 +1,9 @@
 Default: all
 
-TOP=../..
+TOP=.
 
 ifndef JAVA_HOME
-#    JAVA_HOME=$(TOP)/../tools/jdk1.7.0_21
-    JAVA_HOME=$(TOP)/../tools/jdk1.6.0_26
+    JAVA_HOME=$(TOP)/../DeveloperTools/install/jdk
 endif
 
 ifeq (Windows, $(findstring Windows,$(OS)))
@@ -37,7 +36,7 @@ CLASS_FILES:=$(foreach class, $(CLASSES), $(BUILD)/$(subst .,/,$(class)).class)
 PACKAGES=$(sort $(basename $(CLASSES)))
 PACKAGEDIRS=$(subst .,/,$(PACKAGES))
 
-NTLM_LIB=ntlm-core-1.0-r20.jar
+NTLM_LIB=ntlm-core-1.0-r21.jar
 
 all: $(NTLM_LIB)
 
@@ -49,7 +48,7 @@ javadocs:
 	$(JAVA_HOME)/bin/javadoc -d $(DOCS) -classpath $(CLASSPATH) $(PACKAGES)
 
 install: $(NTLM_LIB)
-	cp $< $(TOP)/jWSMV/components/winrs/rsrc/lib
+	cp $< $(TOP)/../jWSMV/components/winrs/rsrc/lib
 
 clean:
 	rm -rf $(BUILD)
